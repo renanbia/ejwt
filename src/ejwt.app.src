@@ -7,7 +7,7 @@
                   kernel,
                   stdlib,
                   crypto,
-		  jiffy,
+		  jsx,
 		  base64url,
 		  ej
                  ]},
