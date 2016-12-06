@@ -11,8 +11,13 @@
 -export([jwt/3, jwt/4]).
 -export([jwt_hs256_iss_sub/4]).
 
+decode(Bin)->
+    {jsx:decode(Bin)}.
+encode({Bin})->
+    jsx:encode(Bin).
+
 jiffy_decode_safe(Bin) ->
-    R = try jiffy:decode(Bin) of Jterm0 -> Jterm0 catch Err -> Err end,
+    R = try decode(Bin) of Jterm0 -> Jterm0 catch Err -> Err end,
     case R of
         {error, _} ->
             invalid;
@@ -97,8 +102,8 @@ parse_jwt_iss_sub(Token, Key) ->
     end.
 
 jwt(Alg, ClaimSetJterm, Key) ->
-  ClaimSet = base64url:encode(jiffy:encode(ClaimSetJterm)),
-  Header = base64url:encode(jiffy:encode(jwt_header(Alg))),
+  ClaimSet = base64url:encode(encode(ClaimSetJterm)),
+  Header = base64url:encode(encode(jwt_header(Alg))),
   Payload = <<Header/binary, ".", ClaimSet/binary>>,
   case jwt_sign(Alg, Payload, Key) of
     alg_not_supported ->
@@ -109,8 +114,8 @@ jwt(Alg, ClaimSetJterm, Key) ->
 
 
 jwt(Alg, ClaimSetJterm, ExpirationSeconds, Key) ->
-    ClaimSet = base64url:encode(jiffy:encode(jwt_add_exp(ClaimSetJterm, ExpirationSeconds))),
-    Header = base64url:encode(jiffy:encode(jwt_header(Alg))),
+    ClaimSet = base64url:encode(encode(jwt_add_exp(ClaimSetJterm, ExpirationSeconds))),
+    Header = base64url:encode(encode(jwt_header(Alg))),
     Payload = <<Header/binary, ".", ClaimSet/binary>>,
     case jwt_sign(Alg, Payload, Key) of
         alg_not_supported ->
